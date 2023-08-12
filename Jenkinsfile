@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     parameters {
         string(name: 'ENVIRONMENT', defaultValue: 'CHANGEME', description: 'Specify the environment (dev, qa, pre-prod, prod)')
     }
@@ -12,7 +12,7 @@ pipeline {
     stage('Unit Tests') {
       steps{
         script {
-          sh 'echo "In Unit Tests"'
+          sh 'echo "In Unit Tests $ENVIRONMENT"'
         }
       }
     }
