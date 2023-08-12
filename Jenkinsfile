@@ -7,7 +7,7 @@ pipeline {
         NODE_IMAGE = "circleci/node:16.13.1-bullseye-browsers"
         SERVICE_NAME = "test-repo-delete" 
         ECR_ADDRESS = "064827688814.dkr.ecr.eu-west-3.amazonaws.com"
-        IMAGE_NAME = "${ECR_ADDRESS}/${SERVICE_NAME}-${ENVIRONMENT}"
+        IMAGE_NAME = "${ECR_ADDRESS}/${SERVICE_NAME}"
         IMAGE_TAG = "latest"
         JOB_BUILD_NUMBER = "${BUILD_NUMBER}"
     }
@@ -50,16 +50,20 @@ pipeline {
                 sh 'echo "Build Image for $ENVIRONMENT Environment"'
                 //sh 'docker build -t test-repo-delete:latest .'
                 //sh 'docker tag test-repo-delete:latest $IMAGE_NAME:$IMAGE_TAG'
-                sh 'echo "docker pull $IMAGE_NAME:latest"'
-                sh 'echo "docker tag $IMAGE_NAME:latest $IMAGE_NAME:stable"'
 
                 sh 'echo "docker build $SERVICE_NAME:latest"'
                 sh 'echo "docker tag $SERVICE_NAME:latest $IMAGE_NAME:latest"'
-                sh 'echo "docker tag $SERVICE_NAME:latest $IMAGE_NAME:$JOB_BUILD_NUMBER"'
+                sh 'echo "docker tag $SERVICE_NAME:latest $IMAGE_NAME:$JOB_BUILD_NUMBER-$ENVIRONMENT"'
             }
-            if (['qa', 'pre-prod', 'prod'].contains(env.ENVIRONMENT)) {
+            if (env.ENVIRONMENT == 'qa') {
                 sh 'echo "Tag Image for $ENVIRONMENT Environment"'
             }
+            if (env.ENVIRONMENT == 'pre-prod') {
+                sh 'echo "Tag Image for $ENVIRONMENT Environment"'
+            }
+            if (env.ENVIRONMENT == 'prod') {
+                sh 'echo "Tag Image for $ENVIRONMENT Environment"'
+            }                        
         }
       }
     }
