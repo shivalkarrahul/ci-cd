@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'ENVIRONMENT', defaultValue: '', description: 'Specify the environment (dev, qa, pre-prod, prod)')
+        string(name: 'ENVIRONMENT', description: 'Specify the environment (dev, qa, pre-prod, prod)')
         // Define other parameters as needed
     }
 
