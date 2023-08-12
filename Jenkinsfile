@@ -57,18 +57,22 @@ pipeline {
             
         // Building Docker images
         stage('Building image') {
-        steps{
-            script {
-                if (env.ENVIRONMENT == 'dev') {
-                    sh 'echo "Build Image for $ENVIRONMENT Environment"'
+            when {
+                expression { ENVIRONMENT == 'dev' }
+            } 
 
-                    sh 'docker build -t $SERVICE_NAME:latest .'
-                    sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:latest'
-                    sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:$JOB_BUILD_NUMBER'
-                    sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:$SERVICE_VERSION' 
+            steps{
+                script {
+                    if (env.ENVIRONMENT == 'dev') {
+                        sh 'echo "Build Image for $ENVIRONMENT Environment"'
+
+                        sh 'docker build -t $SERVICE_NAME:latest .'
+                        sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:latest'
+                        sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:$JOB_BUILD_NUMBER'
+                        sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:$SERVICE_VERSION' 
+                    }
                 }
             }
-        }
         }
     
         stage('Pushing to ECR') {
@@ -134,7 +138,7 @@ pipeline {
                         sh 'docker push $IMAGE_NAME:$SERVICE_VERSION'
                     }
 
-                    if (ENVIRONMENT == 'pre-prpd' ) {
+                    if (ENVIRONMENT == 'pre-prod' ) {
 
                         withCredentials([usernamePassword(credentialsId: 'ecr-dev', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
                             def awsLoginCmd = "aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${ECR_ADDRESS}"
