@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        ENVIRONMENT="dev"
+        ENVIRONMENT="CHANGEME"
 
     }
    
