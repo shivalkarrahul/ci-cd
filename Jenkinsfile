@@ -4,7 +4,9 @@ pipeline {
     environment {
         // Initialize ENVIRONMENT with a default value, but allow it to be overridden by the parameter
         ENVIRONMENT = "${ENVIRONMENT}"
-        NODE_IMAGE = "circleci/node:16.13.1-bullseye-browsers" 
+        NODE_IMAGE = "circleci/node:16.13.1-bullseye-browsers"
+        SERVICE_NAME = "test-repo-delete" 
+        REPO_NAME = ${SERVICE_NAME}_${SERVICE_NAME}
     }
 
    
@@ -13,7 +15,9 @@ pipeline {
     stage('Initialization') {
       steps{
         script {
-          sh 'echo "Environment =  $ENVIRONMENT"'
+          sh 'echo "Environment     =  $ENVIRONMENT"'
+          sh 'echo "SERVICE_NAME    =  $SERVICE_NAME"'
+          sh 'echo "REPO_NAME       =  $REPO_NAME"'
         }
       }
     }
@@ -36,11 +40,11 @@ pipeline {
       steps{
         script {
             if (env.ENVIRONMENT == 'dev') {
-                sh 'echo "In Building image"'
+                sh 'echo "Build Image for $ENVIRONMENT Environment"'
                 sh 'docker build -t test-repo-delete .'
             }
             if (['qa', 'pre-prod', 'prod'].contains(env.ENVIRONMENT)) {
-                sh 'echo "In Tagging image"'
+                sh 'echo "Tag Image for $ENVIRONMENT Environment"'
             }
         }
       }
