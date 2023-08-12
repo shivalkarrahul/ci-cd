@@ -4,6 +4,7 @@ pipeline {
     environment {
         // Initialize ENVIRONMENT with a default value, but allow it to be overridden by the parameter
         ENVIRONMENT = "${ENVIRONMENT}"
+        NODE_IMAGE = "circleci/node:16.13.1-bullseye-browsers" 
     }
 
    
@@ -21,8 +22,11 @@ pipeline {
       steps{
         script {
           sh 'echo "In Unit Tests $ENVIRONMENT"'
-          sh 'npm install'
-	      sh 'npm test -- --watchAll=false'          
+          sh """
+          docker run --rm --user root -v "$WORKSPACE":/home/circleci/app $NODE_IMAGE /bin/bash -c "cd /home/circleci/app &&  npm install && npm test -- --watchAll=false"
+          sudo chown -R `id -u`:`id -g` "$WORKSPACE"
+          """
+
         }
       }
     }
