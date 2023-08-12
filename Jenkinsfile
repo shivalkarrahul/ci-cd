@@ -16,121 +16,128 @@ pipeline {
    
     stages {
 
-    stage('Initialization') {
-      steps{
-        script {
-            sh 'echo "Environment     =  $ENVIRONMENT"'
-            sh 'echo "SERVICE_NAME    =  $SERVICE_NAME"'
-            sh 'echo "REPO_NAME       =  $REPO_NAME"'
-            sh 'echo "ECR_ADDRESS       =  $ECR_ADDRESS"'
-            sh 'echo "IMAGE_NAME       =  $IMAGE_NAME"'
-            sh 'echo "IMAGE_TAG       =  $IMAGE_TAG"'
-            
-            def versionLine = sh(script: 'cat version.txt | grep service_version', returnStdout: true).trim()
-            def version = versionLine.split('=')[1].trim()
-            
-            echo "Version from version.txt: $version"
-            env.SERVICE_VERSION = version
-            echo "SERVICE_VERSION = $SERVICE_VERSION"
+        stage('Initialization') {
+        steps{
+            script {
+                sh 'echo "Environment     =  $ENVIRONMENT"'
+                sh 'echo "SERVICE_NAME    =  $SERVICE_NAME"'
+                sh 'echo "REPO_NAME       =  $REPO_NAME"'
+                sh 'echo "ECR_ADDRESS       =  $ECR_ADDRESS"'
+                sh 'echo "IMAGE_NAME       =  $IMAGE_NAME"'
+                sh 'echo "IMAGE_TAG       =  $IMAGE_TAG"'
+                
+                def versionLine = sh(script: 'cat version.txt | grep service_version', returnStdout: true).trim()
+                def version = versionLine.split('=')[1].trim()
+                
+                echo "Version from version.txt: $version"
+                env.SERVICE_VERSION = version
+                echo "SERVICE_VERSION = $SERVICE_VERSION"
 
-        }
-      }
-    }
-
-    stage('Unit Tests') {
-      steps{
-        script {
-          sh 'echo "In Unit Tests $ENVIRONMENT"'
-          sh 'echo "Running using"; whoami'
-          sh """
-          docker run --rm --user root -v "$WORKSPACE":/home/circleci/app $NODE_IMAGE /bin/bash -c "cd /home/circleci/app &&  npm install && npm test -- --watchAll=false"
-          """
-
-        }
-      }
-    }
-        
-    // Building Docker images
-    stage('Building image') {
-      steps{
-        script {
-            if (env.ENVIRONMENT == 'dev') {
-                sh 'echo "Build Image for $ENVIRONMENT Environment"'
-
-                sh 'docker build -t $SERVICE_NAME:latest .'
-                sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:latest'
-                sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:$JOB_BUILD_NUMBER'
             }
         }
-      }
-    }
-   
-    // Uploading Docker images into AWS ECR
-    stage('Pushing to ECR') {
-     steps{  
-        script {
-                
-                withCredentials([usernamePassword(credentialsId: 'ecr-dev', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
-                    def awsLoginCmd = "aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${ECR_ADDRESS}"
-                    def dockerLoginCmd = "AWS_ACCESS_KEY_ID=$access_key AWS_SECRET_ACCESS_KEY=$secret_key $awsLoginCmd"
-                    sh "eval $dockerLoginCmd"
-                    
+        }
+
+        stage('Unit Tests') {
+        steps{
+            script {
+            sh 'echo "In Unit Tests $ENVIRONMENT"'
+            sh 'echo "Running using"; whoami'
+            sh """
+            docker run --rm --user root -v "$WORKSPACE":/home/circleci/app $NODE_IMAGE /bin/bash -c "cd /home/circleci/app &&  npm install && npm test -- --watchAll=false"
+            """
+
+            }
+        }
+        }
+            
+        // Building Docker images
+        stage('Building image') {
+        steps{
+            script {
+                if (env.ENVIRONMENT == 'dev') {
+                    sh 'echo "Build Image for $ENVIRONMENT Environment"'
+
+                    sh 'docker build -t $SERVICE_NAME:latest .'
+                    sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:latest'
+                    sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:$JOB_BUILD_NUMBER'
+                    sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:$SERVICE_VERSION' 
                 }
-                sh 'docker push $IMAGE_NAME:latest'
-                sh 'docker push $IMAGE_NAME:$JOB_BUILD_NUMBER'
-
-
+            }
         }
         }
-      }
-      
-    stage('Deploy to Dev') {
-     when {
-         expression { ENVIRONMENT == 'dev' }
-     }        
-     steps{
-        script {
-                sh 'echo "Deploy to Dev"'
-                sh 'echo "docker run $IMAGE_NAME:$JOB_BUILD_NUMBER"'  
-                withCredentials([usernamePassword(credentialsId: 'ecr-dev', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
-                    def awsLoginCmd = "aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${ECR_ADDRESS}"
-                    def dockerLoginCmd = "AWS_ACCESS_KEY_ID=$access_key AWS_SECRET_ACCESS_KEY=$secret_key $awsLoginCmd"
-                    sh "eval $dockerLoginCmd"
-                }                     
+    
+        stage('Pushing to ECR') {
+        steps{  
+            script {
+                    
+                    withCredentials([usernamePassword(credentialsId: 'ecr-dev', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
+                        def awsLoginCmd = "aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${ECR_ADDRESS}"
+                        def dockerLoginCmd = "AWS_ACCESS_KEY_ID=$access_key AWS_SECRET_ACCESS_KEY=$secret_key $awsLoginCmd"
+                        sh "eval $dockerLoginCmd"
+                        
+                    }
+                    sh 'docker push $IMAGE_NAME:latest'
+                    sh 'docker push $IMAGE_NAME:$JOB_BUILD_NUMBER'
+                    sh 'docker push $IMAGE_NAME:$SERVICE_VERSION'
 
-        }       
-     }
-      }  
 
-    stage('Deploy to QA') {
-     when {
-         expression { ENVIRONMENT == 'qa' }
-     }        
-     steps{
-        script {
-          sh 'echo "Deploy to QA"'
-        }        }
-      }  
+            }
+            }
+        }
+        
+        stage('Deploy to Dev') {
+        when {
+            expression { ENVIRONMENT == 'dev' }
+        }        
+        steps{
+            script {
+                    sh 'echo "Deploy to Dev"'
+                    sh 'echo "docker run $IMAGE_NAME:$latest"'  
+                    withCredentials([usernamePassword(credentialsId: 'ecr-dev', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
+                        def awsLoginCmd = "aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${ECR_ADDRESS}"
+                        def dockerLoginCmd = "AWS_ACCESS_KEY_ID=$access_key AWS_SECRET_ACCESS_KEY=$secret_key $awsLoginCmd"
+                        sh "eval $dockerLoginCmd"
+                    }                     
 
-    stage('Deploy to Pre-Prod') {
-     when {
-         expression { ENVIRONMENT == 'pre-prod' }
-     }        
-     steps{
-        script {
-          sh 'echo "Deploy to Pre-Prod"'
-        }        }
-      }  
+            }       
+        }
+        }  
 
-    stage('Deploy to Prod') {
-     when {
-         expression { ENVIRONMENT == 'prod' }
-     }        
-     steps{
-        script {
-          sh 'echo "Deploy to Prod"'
-        }        }
-      }                        
+        stage('Deploy to QA') {
+            when {
+                expression { ENVIRONMENT == 'qa' }
+            }        
+            steps{
+                script {
+                sh 'echo "Deploy to QA"'
+                sh 'echo "docker run $IMAGE_NAME:$SERVICE_VERSION"'  
+                }        
+            }
+        }  
+
+        stage('Deploy to Pre-Prod') {
+            when {
+                expression { ENVIRONMENT == 'pre-prod' }
+            }        
+            steps{
+                script {
+                sh 'echo "Deploy to Pre-Prod"'
+                sh 'echo "docker run $IMAGE_NAME:$SERVICE_VERSION"'  
+                }        
+            }
+        }  
+
+        stage('Deploy to Prod') {
+            when {
+                expression { ENVIRONMENT == 'prod' }
+            }        
+            steps{
+                script {
+                sh 'echo "Deploy to Prod"'
+                sh 'echo "docker run $IMAGE_NAME:$SERVICE_VERSION"'  
+                }        
+                }
+        }                        
       
     }
 
