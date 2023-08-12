@@ -49,12 +49,10 @@ pipeline {
         script {
             if (env.ENVIRONMENT == 'dev') {
                 sh 'echo "Build Image for $ENVIRONMENT Environment"'
-                //sh 'docker build -t test-repo-delete:latest .'
-                //sh 'docker tag test-repo-delete:latest $IMAGE_NAME:$IMAGE_TAG'
 
-                sh 'echo "docker build $SERVICE_NAME:latest"'
-                sh 'echo "docker tag $SERVICE_NAME:latest $IMAGE_NAME:latest"'
-                sh 'echo "docker tag $SERVICE_NAME:latest $IMAGE_NAME:$JOB_BUILD_NUMBER"'
+                sh 'docker build -t $SERVICE_NAME:latest .'
+                sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:latest'
+                sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:$JOB_BUILD_NUMBER'
             }
         }
       }
@@ -64,9 +62,17 @@ pipeline {
     stage('Pushing to ECR') {
      steps{  
         script {
-                sh 'echo "Pushing to ECR"'
-                sh 'echo "docker push $IMAGE_NAME:latest"'
-                sh 'echo "docker push $IMAGE_NAME:$JOB_BUILD_NUMBER"'          
+                
+                withCredentials([usernamePassword(credentialsId: 'ecr-dev', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
+                    def awsLoginCmd = "aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${ECR_ADDRESS}"
+                    def dockerLoginCmd = "AWS_ACCESS_KEY_ID=$access_key AWS_SECRET_ACCESS_KEY=$secret_key $awsLoginCmd"
+                    sh "eval $dockerLoginCmd"
+                    
+                }
+                sh 'docker push $IMAGE_NAME:latest'
+                sh 'docker push $IMAGE_NAME:$JOB_BUILD_NUMBER'
+
+
         }
         }
       }
@@ -83,7 +89,7 @@ pipeline {
                     def awsLoginCmd = "aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${ECR_ADDRESS}"
                     def dockerLoginCmd = "AWS_ACCESS_KEY_ID=$access_key AWS_SECRET_ACCESS_KEY=$secret_key $awsLoginCmd"
                     sh "eval $dockerLoginCmd"
-                    sh "aws sts get-caller-identity"
+                    sh 'aws sts get-caller-identity'
                 }                     
 
         }       
