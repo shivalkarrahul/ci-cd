@@ -25,6 +25,13 @@ pipeline {
             sh 'echo "ECR_ADDRESS       =  $ECR_ADDRESS"'
             sh 'echo "IMAGE_NAME       =  $IMAGE_NAME"'
             sh 'echo "IMAGE_TAG       =  $IMAGE_TAG"'
+            
+            def versionLine = sh(script: 'cat version.txt | grep service_version', returnStdout: true).trim()
+            def version = versionLine.split('=')[1].trim()
+            
+            echo "Version from version.txt: $version"
+            env.SERVICE_VERSION = version
+            echo "SERVICE_VERSION = $SERVICE_VERSION"
 
         }
       }
