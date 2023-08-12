@@ -8,7 +8,7 @@ pipeline {
 
     environment {
         // Initialize ENVIRONMENT with a default value, but allow it to be overridden by the parameter
-        ENVIRONMENT = params.ENVIRONMENT ?: ''
+        ENVIRONMENT = "${params.ENVIRONMENT}"
     }
 
    
