@@ -80,8 +80,10 @@ pipeline {
                 sh 'echo "Deploy to Dev"'
                 sh 'echo "docker run $IMAGE_NAME:$JOB_BUILD_NUMBER"'  
                 withCredentials([usernamePassword(credentialsId: 'ecr-dev', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
-                    sh 'set +x; AWS_ACCESS_KEY_ID=$ecr-dev AWS_SECRET_ACCESS_KEY=$secret_key aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${ECR_ADDRESS}'
-                // some block
+                    def awsLoginCmd = "aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${ECR_ADDRESS}"
+                    def dockerLoginCmd = "AWS_ACCESS_KEY_ID=$access_key AWS_SECRET_ACCESS_KEY=$secret_key $awsLoginCmd"
+                    sh "eval $dockerLoginCmd"
+                    sh "aws sts get-caller-identity"
                 }                     
 
         }       
