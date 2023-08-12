@@ -9,7 +9,7 @@ pipeline {
         ECR_ADDRESS = "064827688814.dkr.ecr.eu-west-3.amazonaws.com"
         IMAGE_NAME = "${ECR_ADDRESS}/${SERVICE_NAME}-${ENVIRONMENT}"
         IMAGE_TAG = "latest"
-        JOB_BUILD_NUMBER = ${BUILD_NUMBER}
+        JOB_BUILD_NUMBER = "${BUILD_NUMBER}"
     }
 
    
