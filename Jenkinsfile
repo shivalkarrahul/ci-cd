@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        ENVIRONMENT="CHANGEME"
+        ENVIRONMENT = params.ENVIRONMENT ?: "CHANGEME"
 
     }
    
