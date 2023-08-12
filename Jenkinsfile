@@ -4,16 +4,29 @@ pipeline {
     environment {
         // Initialize ENVIRONMENT with a default value, but allow it to be overridden by the parameter
         ENVIRONMENT = "${ENVIRONMENT}"
+        NODE_IMAGE = "circleci/node:16.13.1-bullseye-browsers" 
     }
 
    
     stages {
 
-    // Tests
+    stage('Initialization') {
+      steps{
+        script {
+          sh 'echo "Environment =  $ENVIRONMENT"'
+        }
+      }
+    }
+
     stage('Unit Tests') {
       steps{
         script {
           sh 'echo "In Unit Tests $ENVIRONMENT"'
+          sh 'echo "Running using"; whoami'
+          sh """
+          docker run --rm --user root -v "$WORKSPACE":/home/circleci/app $NODE_IMAGE /bin/bash -c "cd /home/circleci/app &&  npm install && npm test -- --watchAll=false"
+          """
+
         }
       }
     }
@@ -22,7 +35,13 @@ pipeline {
     stage('Building image') {
       steps{
         script {
-          sh 'echo "In Building image"'
+            if (env.ENVIRONMENT == 'dev') {
+                sh 'echo "In Building image"'
+                sh 'docker build -t test-repo-delete .'
+            }
+            if (['qa', 'pre-prod', 'prod'].contains(env.ENVIRONMENT)) {
+                sh 'echo "In Tagging image"'
+            }
         }
       }
     }
@@ -77,4 +96,5 @@ pipeline {
       }                        
       
     }
+
 }
