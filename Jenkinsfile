@@ -21,6 +21,27 @@ pipeline {
    
     stages {
 
+
+        stage('Check Version Change') {
+            steps {
+                script {
+                    def previousVersion = sh(script: 'git show HEAD~1:version.txt | grep service_version', returnStdout: true).trim().split('=')[1].trim()
+                    def currentVersion = readFile('version.txt').trim().split('=')[1].trim()
+
+                    if (previousVersion == currentVersion) {
+                        echo "No change in version.txt, using build number"
+                        echo "previousVersion = $previousVersion currentVersion=$currentVersion"
+                        //env.IMAGE_TAG = JOB_BUILD_NUMBER
+                    } else {
+                        echo "Version.txt changed, using version from version.txt"
+                        echo "previousVersion = $previousVersion currentVersion=$currentVersion"
+                        //env.IMAGE_TAG = currentVersion
+                    }
+                }
+            }
+        }
+
+
         stage('Initialization') {
         steps{
             script {
