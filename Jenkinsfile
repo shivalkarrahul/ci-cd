@@ -9,11 +9,20 @@ pipeline {
    
     stages {
 
-    // Tests
+    stage('Initialization') {
+      steps{
+        script {
+          sh 'echo "Environment =  $ENVIRONMENT"'s
+        }
+      }
+    }
+
     stage('Unit Tests') {
       steps{
         script {
           sh 'echo "In Unit Tests $ENVIRONMENT"'
+          sh 'npm install'
+	      sh 'npm test -- --watchAll=false'          
         }
       }
     }
