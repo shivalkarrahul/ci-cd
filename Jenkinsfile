@@ -6,9 +6,8 @@ pipeline {
         ENVIRONMENT = "${ENVIRONMENT}"
         NODE_IMAGE = "circleci/node:16.13.1-bullseye-browsers"
         SERVICE_NAME = "test-repo-delete" 
-        REPO_NAME = "${SERVICE_NAME}_${ENVIRONMENT}"
         ECR_ADDRESS = "064827688814.dkr.ecr.eu-west-3.amazonaws.com"
-        IMAGE_NAME = "${ECR_ADDRESS}"
+        IMAGE_NAME = "${ECR_ADDRESS}/${SERVICE_NAME}-${ENVIRONMENT}"
         IMAGE_TAG = "latest"
     }
 
