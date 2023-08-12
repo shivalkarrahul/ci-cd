@@ -12,7 +12,7 @@ pipeline {
     stage('Initialization') {
       steps{
         script {
-          sh 'echo "Environment =  $ENVIRONMENT"'s
+          sh 'echo "Environment =  $ENVIRONMENT"'
         }
       }
     }
