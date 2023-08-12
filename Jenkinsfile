@@ -6,7 +6,7 @@ pipeline {
         ENVIRONMENT = "${ENVIRONMENT}"
         NODE_IMAGE = "circleci/node:16.13.1-bullseye-browsers"
         SERVICE_NAME = "test-repo-delete" 
-        REPO_NAME = ${SERVICE_NAME}_${SERVICE_NAME}
+        REPO_NAME = "${SERVICE_NAME}""_""${SERVICE_NAME}""
     }
 
    
