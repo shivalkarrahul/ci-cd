@@ -130,6 +130,7 @@ pipeline {
                         }
 
                         sh 'docker pull $DEV_IMAGE_NAME:$SERVICE_VERSION'
+                        sh 'docker tag $DEV_IMAGE_NAME:$SERVICE_VERSION $IMAGE_NAME:$SERVICE_VERSION'
                         sh 'docker push $IMAGE_NAME:$SERVICE_VERSION'
                     }
 
@@ -143,6 +144,7 @@ pipeline {
                         }
 
                         sh 'docker pull $QA_IMAGE_NAME:$SERVICE_VERSION'
+                        sh 'docker tag $QA_IMAGE_NAME:$SERVICE_VERSION $IMAGE_NAME:$SERVICE_VERSION'
                         sh 'docker push $IMAGE_NAME:$SERVICE_VERSION'
                     }
 
@@ -156,6 +158,7 @@ pipeline {
                         }
 
                         sh 'docker pull $PREPROD_IMAGE_NAME:$SERVICE_VERSION'
+                        sh 'docker tag $PREPROD_IMAGE_NAME:$SERVICE_VERSION $IMAGE_NAME:$SERVICE_VERSION'
                         sh 'docker push $IMAGE_NAME:$SERVICE_VERSION'
                     }                    
 
