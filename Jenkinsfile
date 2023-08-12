@@ -7,9 +7,10 @@ pipeline {
         NODE_IMAGE = "circleci/node:16.13.1-bullseye-browsers"
         SERVICE_NAME = "test-repo-delete" 
         ECR_ADDRESS = "064827688814.dkr.ecr.eu-west-3.amazonaws.com"
-        IMAGE_NAME = "${ECR_ADDRESS}/${SERVICE_NAME}"
-        IMAGE_TAG = "latest"
+        IMAGE_NAME = "${ECR_ADDRESS}/${SERVICE_NAME}-${ENVIRONMENT}"
+        IMAGE_TAG = "${BUILD_NUMBER}"
         JOB_BUILD_NUMBER = "${BUILD_NUMBER}"
+
     }
 
    
@@ -53,17 +54,8 @@ pipeline {
 
                 sh 'echo "docker build $SERVICE_NAME:latest"'
                 sh 'echo "docker tag $SERVICE_NAME:latest $IMAGE_NAME:latest"'
-                sh 'echo "docker tag $SERVICE_NAME:latest $IMAGE_NAME:$JOB_BUILD_NUMBER-$ENVIRONMENT"'
+                sh 'echo "docker tag $SERVICE_NAME:latest $IMAGE_NAME:$JOB_BUILD_NUMBER"'
             }
-            if (env.ENVIRONMENT == 'qa') {
-                sh 'echo "Tag Image for $ENVIRONMENT Environment"'
-            }
-            if (env.ENVIRONMENT == 'pre-prod') {
-                sh 'echo "Tag Image for $ENVIRONMENT Environment"'
-            }
-            if (env.ENVIRONMENT == 'prod') {
-                sh 'echo "Tag Image for $ENVIRONMENT Environment"'
-            }                        
         }
       }
     }
@@ -72,7 +64,9 @@ pipeline {
     stage('Pushing to ECR') {
      steps{  
         script {
-          sh 'echo "Pushing to ECR"'
+                sh 'echo "Pushing to ECR"'
+                sh 'echo "docker push $IMAGE_NAME:latest"'
+                sh 'echo "docker push $IMAGE_NAME:$JOB_BUILD_NUMBER"'          
         }
         }
       }
@@ -83,8 +77,11 @@ pipeline {
      }        
      steps{
         script {
-          sh 'echo "Deploy to Dev"'
-        }        }
+                sh 'echo "Deploy to Dev"'
+                sh 'echo "docker run $IMAGE_NAME:$JOB_BUILD_NUMBER"'       
+
+        }       
+     }
       }  
 
     stage('Deploy to QA') {
