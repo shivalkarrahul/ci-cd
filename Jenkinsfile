@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        TEST_VAR="CHANGE_ME"
+        ENVIRONMENT="dev"
 
     }
    
@@ -34,12 +34,45 @@ pipeline {
         }
       }
       
-    stage('Deploy') {
+    stage('Deploy to Dev') {
+     when {
+         expression { ENVIRONMENT == 'dev' }
+     }        
      steps{
         script {
-          sh 'echo "Deploy"'
+          sh 'echo "Deploy to Dev"'
         }        }
-      }      
+      }  
+
+    stage('Deploy to QA') {
+     when {
+         expression { ENVIRONMENT == 'qa' }
+     }        
+     steps{
+        script {
+          sh 'echo "Deploy to QA"'
+        }        }
+      }  
+
+    stage('Deploy to Pre-Prod') {
+     when {
+         expression { ENVIRONMENT == 'pre-prod' }
+     }        
+     steps{
+        script {
+          sh 'echo "Deploy to Pre-Prod"'
+        }        }
+      }  
+
+    stage('Deploy to Prod') {
+     when {
+         expression { ENVIRONMENT == 'prod' }
+     }        
+     steps{
+        script {
+          sh 'echo "Deploy to Prod"'
+        }        }
+      }                        
       
     }
 }
