@@ -49,7 +49,7 @@ pipeline {
             if (env.ENVIRONMENT == 'dev') {
                 sh 'echo "Build Image for $ENVIRONMENT Environment"'
                 sh 'docker build -t test-repo-delete:latest .'
-                sh 'docker tag -t test-repo-delete:latest $IMAGE_NAME:$IMAGE_TAG'
+                sh 'docker tag test-repo-delete:latest $IMAGE_NAME:$IMAGE_TAG'
             }
             if (['qa', 'pre-prod', 'prod'].contains(env.ENVIRONMENT)) {
                 sh 'echo "Tag Image for $ENVIRONMENT Environment"'
