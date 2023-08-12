@@ -1,9 +1,10 @@
 pipeline {
     agent any
-    environment {
-        ENVIRONMENT = "params.ENVIRONMENT" ?: "CHANGEME"
-
+    
+    parameters {
+        string(name: 'ENVIRONMENT', defaultValue: 'CHANGEME', description: 'Specify the environment (dev, qa, pre-prod, prod)')
     }
+
    
     stages {
 
