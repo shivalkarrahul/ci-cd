@@ -8,6 +8,11 @@ pipeline {
         SERVICE_NAME = "test-repo-delete" 
         ECR_ADDRESS = "064827688814.dkr.ecr.eu-west-3.amazonaws.com"
         IMAGE_NAME = "${ECR_ADDRESS}/${SERVICE_NAME}-${ENVIRONMENT}"
+        DEV_IMAGE_NAME = "${ECR_ADDRESS}/${SERVICE_NAME}-dev"
+        QA_IMAGE_NAME = "${ECR_ADDRESS}/${SERVICE_NAME}-qa"
+        PREPROD_IMAGE_NAME = "${ECR_ADDRESS}/${SERVICE_NAME}-pre-prod"
+        PROD_IMAGE_NAME = "${ECR_ADDRESS}/${SERVICE_NAME}-prod"
+
         IMAGE_TAG = "${BUILD_NUMBER}"
         JOB_BUILD_NUMBER = "${BUILD_NUMBER}"
 
@@ -67,41 +72,96 @@ pipeline {
         }
     
         stage('Pushing to ECR') {
-        steps{  
-            script {
-                    
-                    withCredentials([usernamePassword(credentialsId: 'ecr-dev', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
-                        def awsLoginCmd = "aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${ECR_ADDRESS}"
-                        def dockerLoginCmd = "AWS_ACCESS_KEY_ID=$access_key AWS_SECRET_ACCESS_KEY=$secret_key $awsLoginCmd"
-                        sh "eval $dockerLoginCmd"
+            when {
+                expression { ENVIRONMENT == 'dev' }
+            } 
+
+            steps{  
+                script {
                         
-                    }
-                    sh 'docker push $IMAGE_NAME:latest'
-                    sh 'docker push $IMAGE_NAME:$JOB_BUILD_NUMBER'
-                    sh 'docker push $IMAGE_NAME:$SERVICE_VERSION'
+                        withCredentials([usernamePassword(credentialsId: 'ecr-dev', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
+                            def awsLoginCmd = "aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${ECR_ADDRESS}"
+                            def dockerLoginCmd = "AWS_ACCESS_KEY_ID=$access_key AWS_SECRET_ACCESS_KEY=$secret_key $awsLoginCmd"
+                            sh "eval $dockerLoginCmd"
+                            
+                        }
+                        sh 'docker push $IMAGE_NAME:latest'
+                        sh 'docker push $IMAGE_NAME:$JOB_BUILD_NUMBER'
+                        sh 'docker push $IMAGE_NAME:$SERVICE_VERSION'
 
 
-            }
+                }
             }
         }
         
         stage('Deploy to Dev') {
-        when {
-            expression { ENVIRONMENT == 'dev' }
-        }        
-        steps{
-            script {
-                    sh 'echo "Deploy to Dev"'
-                    sh 'echo "docker run $IMAGE_NAME:latest"'  
-                    withCredentials([usernamePassword(credentialsId: 'ecr-dev', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
-                        def awsLoginCmd = "aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${ECR_ADDRESS}"
-                        def dockerLoginCmd = "AWS_ACCESS_KEY_ID=$access_key AWS_SECRET_ACCESS_KEY=$secret_key $awsLoginCmd"
-                        sh "eval $dockerLoginCmd"
-                    }                     
+            when {
+                expression { ENVIRONMENT == 'dev' }
+            }        
+            steps{
+                script {
+                        sh 'echo "Deploy to Dev"'
+                        sh 'echo "docker run $IMAGE_NAME:latest"'  
+                        withCredentials([usernamePassword(credentialsId: 'ecr-dev', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
+                            def awsLoginCmd = "aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${ECR_ADDRESS}"
+                            def dockerLoginCmd = "AWS_ACCESS_KEY_ID=$access_key AWS_SECRET_ACCESS_KEY=$secret_key $awsLoginCmd"
+                            sh "eval $dockerLoginCmd"
+                        }                     
 
-            }       
-        }
+                }       
+            }
         }  
+
+
+        stage('Promotion to Higher Environment') {
+            when {
+                expression { ENVIRONMENT in ['qa', 'pre-prod', 'prod'] }
+            } 
+
+            steps{  
+                script {
+                    if (ENVIRONMENT == 'qa' ) {
+
+                        withCredentials([usernamePassword(credentialsId: 'ecr-dev', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
+                            def awsLoginCmd = "aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${ECR_ADDRESS}"
+                            def dockerLoginCmd = "AWS_ACCESS_KEY_ID=$access_key AWS_SECRET_ACCESS_KEY=$secret_key $awsLoginCmd"
+                            sh "eval $dockerLoginCmd"
+                            
+                        }
+
+                        sh 'docker pull $IMAGE_NAME:$DEV_IMAGE_NAME'
+                        sh 'docker push $IMAGE_NAME:$DEV_IMAGE_NAME'
+                    }
+
+                    if (ENVIRONMENT == 'pre-prpd' ) {
+
+                        withCredentials([usernamePassword(credentialsId: 'ecr-dev', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
+                            def awsLoginCmd = "aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${ECR_ADDRESS}"
+                            def dockerLoginCmd = "AWS_ACCESS_KEY_ID=$access_key AWS_SECRET_ACCESS_KEY=$secret_key $awsLoginCmd"
+                            sh "eval $dockerLoginCmd"
+                            
+                        }
+
+                        sh 'docker pull $IMAGE_NAME:$QA_IMAGE_NAME'
+                        sh 'docker push $IMAGE_NAME:$QA_IMAGE_NAME'
+                    }
+
+                    if (ENVIRONMENT == 'prod' ) {
+
+                        withCredentials([usernamePassword(credentialsId: 'ecr-dev', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
+                            def awsLoginCmd = "aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${ECR_ADDRESS}"
+                            def dockerLoginCmd = "AWS_ACCESS_KEY_ID=$access_key AWS_SECRET_ACCESS_KEY=$secret_key $awsLoginCmd"
+                            sh "eval $dockerLoginCmd"
+                            
+                        }
+
+                        sh 'docker pull $IMAGE_NAME:$PREPROD_IMAGE_NAME'
+                        sh 'docker push $IMAGE_NAME:$PREPROD_IMAGE_NAME'
+                    }                    
+
+                }
+            }
+        }
 
         stage('Deploy to QA') {
             when {
