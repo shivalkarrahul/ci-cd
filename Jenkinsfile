@@ -89,7 +89,6 @@ pipeline {
                     def awsLoginCmd = "aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${ECR_ADDRESS}"
                     def dockerLoginCmd = "AWS_ACCESS_KEY_ID=$access_key AWS_SECRET_ACCESS_KEY=$secret_key $awsLoginCmd"
                     sh "eval $dockerLoginCmd"
-                    sh 'aws sts get-caller-identity'
                 }                     
 
         }       
