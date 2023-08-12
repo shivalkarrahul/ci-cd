@@ -7,6 +7,9 @@ pipeline {
         NODE_IMAGE = "circleci/node:16.13.1-bullseye-browsers"
         SERVICE_NAME = "test-repo-delete" 
         REPO_NAME = "${SERVICE_NAME}_${ENVIRONMENT}"
+        ECR_ADDRESS = "064827688814.dkr.ecr.eu-west-3.amazonaws.com"
+        IMAGE_NAME = "${ECR_ADDRESS}"
+        IMAGE_TAG = "latest"
     }
 
    
@@ -15,9 +18,13 @@ pipeline {
     stage('Initialization') {
       steps{
         script {
-          sh 'echo "Environment     =  $ENVIRONMENT"'
-          sh 'echo "SERVICE_NAME    =  $SERVICE_NAME"'
-          sh 'echo "REPO_NAME       =  $REPO_NAME"'
+            sh 'echo "Environment     =  $ENVIRONMENT"'
+            sh 'echo "SERVICE_NAME    =  $SERVICE_NAME"'
+            sh 'echo "REPO_NAME       =  $REPO_NAME"'
+            sh 'echo "ECR_ADDRESS       =  $ECR_ADDRESS"'
+            sh 'echo "IMAGE_NAME       =  $IMAGE_NAME"'
+            sh 'echo "IMAGE_TAG       =  $IMAGE_TAG"'
+
         }
       }
     }
@@ -41,7 +48,8 @@ pipeline {
         script {
             if (env.ENVIRONMENT == 'dev') {
                 sh 'echo "Build Image for $ENVIRONMENT Environment"'
-                sh 'docker build -t test-repo-delete .'
+                sh 'docker build -t test-repo-delete:latest .'
+                sh 'docker tag -t test-repo-delete:latest IMAGE_NAME:IMAGE_TAG'
             }
             if (['qa', 'pre-prod', 'prod'].contains(env.ENVIRONMENT)) {
                 sh 'echo "Tag Image for $ENVIRONMENT Environment"'
