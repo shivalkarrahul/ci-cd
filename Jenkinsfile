@@ -92,7 +92,7 @@ pipeline {
         steps{
             script {
                     sh 'echo "Deploy to Dev"'
-                    sh 'echo "docker run $IMAGE_NAME:$latest"'  
+                    sh 'echo "docker run $IMAGE_NAME:latest"'  
                     withCredentials([usernamePassword(credentialsId: 'ecr-dev', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
                         def awsLoginCmd = "aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${ECR_ADDRESS}"
                         def dockerLoginCmd = "AWS_ACCESS_KEY_ID=$access_key AWS_SECRET_ACCESS_KEY=$secret_key $awsLoginCmd"
