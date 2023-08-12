@@ -1,8 +1,9 @@
 pipeline {
     agent any
 
-    parameters {
-        string(name: 'ENVIRONMENT', defaultValue: 'CHANGEME', description: 'Specify the environment (dev, qa, pre-prod, prod)')
+    environment {
+        // Initialize ENVIRONMENT with a default value, but allow it to be overridden by the parameter
+        ENVIRONMENT = 'CHANGEME'
     }
 
    
