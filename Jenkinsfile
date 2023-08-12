@@ -35,8 +35,13 @@ pipeline {
     stage('Building image') {
       steps{
         script {
-          sh 'echo "In Building image"'
-          sh 'docker build -t test-repo-delete .'
+            if (env.ENVIRONMENT == 'dev') {
+                sh 'echo "In Building image"'
+                sh 'docker build -t test-repo-delete .'
+            }
+            if (['qa', 'pre-prod', 'prod'].contains(env.ENVIRONMENT)) {
+                sh 'echo "In Tagging image"'
+            }
         }
       }
     }
