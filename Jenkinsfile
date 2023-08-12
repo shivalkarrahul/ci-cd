@@ -129,8 +129,8 @@ pipeline {
                             
                         }
 
-                        sh 'docker pull $IMAGE_NAME:$DEV_IMAGE_NAME'
-                        sh 'docker push $IMAGE_NAME:$DEV_IMAGE_NAME'
+                        sh 'docker pull $DEV_IMAGE_NAME:$SERVICE_VERSION'
+                        sh 'docker push $IMAGE_NAME:$SERVICE_VERSION'
                     }
 
                     if (ENVIRONMENT == 'pre-prpd' ) {
@@ -142,8 +142,8 @@ pipeline {
                             
                         }
 
-                        sh 'docker pull $IMAGE_NAME:$QA_IMAGE_NAME'
-                        sh 'docker push $IMAGE_NAME:$QA_IMAGE_NAME'
+                        sh 'docker pull $QA_IMAGE_NAME:$SERVICE_VERSION'
+                        sh 'docker push $IMAGE_NAME:$SERVICE_VERSION'
                     }
 
                     if (ENVIRONMENT == 'prod' ) {
@@ -155,8 +155,8 @@ pipeline {
                             
                         }
 
-                        sh 'docker pull $IMAGE_NAME:$PREPROD_IMAGE_NAME'
-                        sh 'docker push $IMAGE_NAME:$PREPROD_IMAGE_NAME'
+                        sh 'docker pull $PREPROD_IMAGE_NAME:$SERVICE_VERSION'
+                        sh 'docker push $IMAGE_NAME:$SERVICE_VERSION'
                     }                    
 
                 }
