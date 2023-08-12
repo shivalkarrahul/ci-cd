@@ -22,9 +22,9 @@ pipeline {
       steps{
         script {
           sh 'echo "In Unit Tests $ENVIRONMENT"'
+          sh 'echo "Running using"; whoami'
           sh """
           docker run --rm --user root -v "$WORKSPACE":/home/circleci/app $NODE_IMAGE /bin/bash -c "cd /home/circleci/app &&  npm install && npm test -- --watchAll=false"
-          sudo chown -R `id -u`:`id -g` "$WORKSPACE"
           """
 
         }
@@ -36,6 +36,7 @@ pipeline {
       steps{
         script {
           sh 'echo "In Building image"'
+          sh 'docker build -t test-repo-delete .'
         }
       }
     }
@@ -90,4 +91,5 @@ pipeline {
       }                        
       
     }
+
 }
