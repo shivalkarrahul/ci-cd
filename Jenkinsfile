@@ -5,6 +5,8 @@ pipeline {
         // Initialize ENVIRONMENT with a default value, but allow it to be overridden by the parameter
         ENVIRONMENT = "${ENVIRONMENT}"
         NODE_IMAGE = "circleci/node:16.13.1-bullseye-browsers"
+        HELM_IMAGE_VERSION = "alpine/helm:3.8.1"
+        KUBECTL_IMAGE_VERSION = "bitnami/kubectl:1.24.9"
         SERVICE_NAME = "test-repo-delete" 
         ECR_ADDRESS = "064827688814.dkr.ecr.eu-west-3.amazonaws.com"
         IMAGE_NAME = "${ECR_ADDRESS}/${SERVICE_NAME}-${ENVIRONMENT}"
@@ -138,8 +140,7 @@ pipeline {
                             def awsLoginCmd = "aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${ECR_ADDRESS}"
                             def dockerLoginCmd = "AWS_ACCESS_KEY_ID=$access_key AWS_SECRET_ACCESS_KEY=$secret_key $awsLoginCmd"
                             sh "eval $dockerLoginCmd"
-                        }                     
-
+                        }
                 }       
             }
         }  
@@ -163,7 +164,9 @@ pipeline {
 
                         sh "docker pull $DEV_IMAGE_NAME:${env.CURRENT_VERSION}"
                         sh "docker tag $DEV_IMAGE_NAME:${env.CURRENT_VERSION} $IMAGE_NAME:${env.CURRENT_VERSION}"
+                        sh "docker tag $DEV_IMAGE_NAME:${env.CURRENT_VERSION} $IMAGE_NAME:latest"
                         sh "docker push $IMAGE_NAME:${env.CURRENT_VERSION}"
+                        sh "docker push $IMAGE_NAME:latest"
                     }
 
                     if (ENVIRONMENT == 'pre-prod' ) {
@@ -177,7 +180,9 @@ pipeline {
 
                         sh "docker pull $QA_IMAGE_NAME:${env.CURRENT_VERSION}"
                         sh "docker tag $QA_IMAGE_NAME:${env.CURRENT_VERSION} $IMAGE_NAME:${env.CURRENT_VERSION}"
+                        sh "docker tag $QA_IMAGE_NAME:${env.CURRENT_VERSION} $IMAGE_NAME:latest"
                         sh "docker push $IMAGE_NAME:${env.CURRENT_VERSION}"
+                        sh "docker push $IMAGE_NAME:latest"
                     }
 
                     if (ENVIRONMENT == 'prod' ) {
@@ -191,7 +196,9 @@ pipeline {
 
                         sh "docker pull $PREPROD_IMAGE_NAME:${env.CURRENT_VERSION}"
                         sh "docker tag $PREPROD_IMAGE_NAME:${env.CURRENT_VERSION} $IMAGE_NAME:${env.CURRENT_VERSION}"
+                        sh "docker tag $PREPROD_IMAGE_NAME:${env.CURRENT_VERSION} $IMAGE_NAME:latest"
                         sh "docker push $IMAGE_NAME:${env.CURRENT_VERSION}"
+                        sh "docker push $IMAGE_NAME:latest"
                     }                    
 
                 }
