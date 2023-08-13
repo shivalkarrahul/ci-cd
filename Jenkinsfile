@@ -25,16 +25,16 @@ pipeline {
         stage('Check Version Change') {
             steps {
                 script {
-                    def previousVersion = sh(script: 'git show HEAD~1:version.txt | grep service_version', returnStdout: true).trim().split('=')[1].trim()
-                    def currentVersion = readFile('version.txt').trim().split('=')[1].trim()
+                    env.PREVIOUS_VERSION = sh(script: 'git show HEAD~1:version.txt | grep service_version', returnStdout: true).trim().split('=')[1].trim()
+                    env.CURRENT_VERSION = readFile('version.txt').trim().split('=')[1].trim()
 
-                    if (previousVersion == currentVersion) {
+                    if (env.PREVIOUS_VERSION == env.CURRENT_VERSION) {
                         echo "No change in version.txt, using build number"
-                        echo "previousVersion = $previousVersion currentVersion=$currentVersion"
+                        echo "previousVersion = $env.PREVIOUS_VERSION currentVersion=$env.CURRENT_VERSION"
                         //env.IMAGE_TAG = JOB_BUILD_NUMBER
                     } else {
                         echo "Version.txt changed, using version from version.txt"
-                        echo "previousVersion = $previousVersion currentVersion=$currentVersion"
+                        echo "previousVersion = $env.PREVIOUS_VERSION currentVersion=$env.CURRENT_VERSION"
                         //env.IMAGE_TAG = currentVersion
                     }
                 }
@@ -90,10 +90,10 @@ pipeline {
                         sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:latest'
                         sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:$JOB_BUILD_NUMBER'
 
-                        if (${previousVersion} != ${currentVersion}) {
+                        if (env.PREVIOUS_VERSION == env.CURRENT_VERSION) {
                             echo "Version.txt changed, using version from version.txt as well"
-                            echo "previousVersion = ${previousVersion} currentVersion=${currentVersion}"
-                            sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:$SERVICE_VERSION' 
+                            echo "previousVersion = $env.PREVIOUS_VERSION currentVersion=$env.CURRENT_VERSION"
+                            sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:$env.CURRENT_VERSION' 
                         }
 
                     }
@@ -117,8 +117,8 @@ pipeline {
                         }
                         sh 'docker push $IMAGE_NAME:latest'
                         sh 'docker push $IMAGE_NAME:$JOB_BUILD_NUMBER'
-                        if (${previousVersion} != ${currentVersion}) {
-                            sh 'docker push $IMAGE_NAME:$SERVICE_VERSION'
+                        if (env.PREVIOUS_VERSION == env.CURRENT_VERSION) {
+                            sh 'docker push $IMAGE_NAME:$env.CURRENT_VERSION'
                         }
 
 
