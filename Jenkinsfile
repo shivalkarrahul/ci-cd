@@ -205,7 +205,7 @@ pipeline {
             steps{
                 script {
                 sh 'echo "Deploy to QA"'
-                sh 'echo "docker run $IMAGE_NAME:${env.CURRENT_VERSION}"'  
+                sh "echo 'docker run $IMAGE_NAME:${env.CURRENT_VERSION}'"
                 }        
             }
         }  
@@ -217,7 +217,7 @@ pipeline {
             steps{
                 script {
                 sh 'echo "Deploy to Pre-Prod"'
-                sh 'echo "docker run $IMAGE_NAME:${env.CURRENT_VERSION}"'  
+                sh "echo 'docker run $IMAGE_NAME:${env.CURRENT_VERSION}'" 
                 }        
             }
         }  
@@ -229,7 +229,7 @@ pipeline {
             steps{
                 script {
                 sh 'echo "Deploy to Prod"'
-                sh 'echo "docker run $IMAGE_NAME:${env.CURRENT_VERSION}"'  
+                sh "echo 'docker run $IMAGE_NAME:${env.CURRENT_VERSION}'"
                 }        
                 }
         }                        
