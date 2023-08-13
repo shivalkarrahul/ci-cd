@@ -141,6 +141,20 @@ pipeline {
                             def dockerLoginCmd = "AWS_ACCESS_KEY_ID=$access_key AWS_SECRET_ACCESS_KEY=$secret_key $awsLoginCmd"
                             sh "eval $dockerLoginCmd"
                         }
+                        withCredentials([file(credentialsId: 'kubeconfigfile', variable: 'KUBECONFIG'), usernamePassword(credentialsId: 'admin-user', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
+                        
+                        export KUBECONFIG=$KUBECONFIG
+                        
+                        kubectl get pods
+                        
+                        export AWS_ACCESS_KEY_ID=$access_key
+                        export AWS_SECRET_ACCESS_KEY=$secret_key
+                        export AWS_DEFAULT_REGION=eu-west-3
+                        
+                        aws s3 ls
+
+                        }
+
                 }       
             }
         }  
