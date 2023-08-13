@@ -92,7 +92,7 @@ pipeline {
                         sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:latest'
                         sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:$JOB_BUILD_NUMBER'
 
-                        if (env.PREVIOUS_VERSION == env.CURRENT_VERSION) {
+                        if (env.PREVIOUS_VERSION != env.CURRENT_VERSION) {
                             echo "Version.txt changed, using version from version.txt as well"
                             echo "previousVersion = $env.PREVIOUS_VERSION currentVersion=$env.CURRENT_VERSION"
                             sh "docker tag $SERVICE_NAME:latest $IMAGE_NAME:${env.CURRENT_VERSION}"
@@ -119,7 +119,7 @@ pipeline {
                         }
                         sh 'docker push $IMAGE_NAME:latest'
                         sh 'docker push $IMAGE_NAME:$JOB_BUILD_NUMBER'
-                        if (env.PREVIOUS_VERSION == env.CURRENT_VERSION) {
+                        if (env.PREVIOUS_VERSION != env.CURRENT_VERSION) {
                             sh "docker push $IMAGE_NAME:${env.CURRENT_VERSION}"
                         }
 
