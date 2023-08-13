@@ -150,7 +150,7 @@ pipeline {
                                 export KUBECONFIG=$KUBECONFIG
                                 aws s3 ls
                                 kubectl get pods
-                                helm install test-repo-delete node-js -f node-js/dev.yaml
+                                helm upgrade --install test-repo-delete node-js -f node-js/dev.yaml -n "$ENVIRONMENT"
                                 '''
                             }
 
@@ -235,7 +235,7 @@ pipeline {
                         export KUBECONFIG=$KUBECONFIG
                         aws s3 ls
                         kubectl get pods
-                        helm upgrade --install test-repo-delete node-js -f node-js/qa.yaml
+                        helm upgrade --install test-repo-delete node-js -f node-js/qa.yaml -n "$ENVIRONMENT"
                         '''
                     }
 
@@ -259,7 +259,7 @@ pipeline {
                         export KUBECONFIG=$KUBECONFIG
                         aws s3 ls
                         kubectl get pods
-                        helm install test-repo-delete node-js -f node-js/pre-prod.yaml
+                        helm upgrade --install test-repo-delete node-js -f node-js/pre-prod.yaml -n "$ENVIRONMENT"
                         '''
                     }
 
@@ -283,7 +283,7 @@ pipeline {
                         export KUBECONFIG=$KUBECONFIG
                         aws s3 ls
                         kubectl get pods
-                        helm install test-repo-delete node-js -f node-js/prod.yaml
+                        helm upgrade --install test-repo-delete node-js -f node-js/prod.yaml -n "$ENVIRONMENT"
                         '''
                     }
 
