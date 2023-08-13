@@ -141,9 +141,9 @@ pipeline {
                             def dockerLoginCmd = "AWS_ACCESS_KEY_ID=$access_key AWS_SECRET_ACCESS_KEY=$secret_key $awsLoginCmd"
                             sh "eval $dockerLoginCmd"
                         }
-                        withCredentials([file(credentialsId: 'kubeconfigfile', variable: 'KUBECONFIG')]) {
+                        withCredentials([file(credentialsId: 'kubeconfigfile', variable: 'KUBECONFIG'), usernamePassword(credentialsId: 'ecr-dev', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
                             sh"""
-                            docker run --rm  --user root -v "$KUBECONFIG":"$KUBECONFIG" -e KUBECONFIG="$KUBECONFIG" $KUBECTL_IMAGE_VERSION get pods -A
+                            docker run --rm  --user root -v "$KUBECONFIG":"$KUBECONFIG" -e KUBECONFIG="$KUBECONFIG"  -e AWS_ACCESS_KEY_ID=$access_key -e AWS_SECRET_ACCESS_KEY=$secret_key  $KUBECTL_IMAGE_VERSION get pods -A
                             """
                             // some block
                         }                                             
