@@ -143,7 +143,7 @@ pipeline {
                         }
                         withCredentials([file(credentialsId: 'kubeconfigfile', variable: 'KUBECONFIG'), usernamePassword(credentialsId: 'admin-user', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
                             
-                                sh '''
+                                sh """
                                 export AWS_ACCESS_KEY_ID=$access_key
                                 export AWS_SECRET_ACCESS_KEY=$secret_key
                                 export AWS_DEFAULT_REGION=eu-west-3
@@ -151,8 +151,8 @@ pipeline {
                                 aws s3 ls
                                 kubectl get pods
                                 kubectl create ns "$ENVIRONMENT" || true
-                                helm upgrade --install test-repo-delete node-js -f node-js/dev.yaml -n "$ENVIRONMENT"
-                                '''
+                                helm upgrade --install test-repo-delete node-js -f node-js/dev.yaml -n "$ENVIRONMENT" --set image=$IMAGE_NAME:latest
+                                """
                             }
 
 
@@ -229,7 +229,7 @@ pipeline {
                 sh 'echo "Deploy to QA"'
                 withCredentials([file(credentialsId: 'kubeconfigfile', variable: 'KUBECONFIG'), usernamePassword(credentialsId: 'admin-user', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
                     
-                        sh '''
+                        sh """
                         export AWS_ACCESS_KEY_ID=$access_key
                         export AWS_SECRET_ACCESS_KEY=$secret_key
                         export AWS_DEFAULT_REGION=eu-west-3
@@ -237,8 +237,8 @@ pipeline {
                         aws s3 ls
                         kubectl get pods
                         kubectl create ns "$ENVIRONMENT" || true
-                        helm upgrade --install test-repo-delete node-js -f node-js/qa.yaml -n "$ENVIRONMENT"
-                        '''
+                        helm upgrade --install test-repo-delete node-js -f node-js/qa.yaml -n "$ENVIRONMENT" --set image=$IMAGE_NAME:${env.CURRENT_VERSION}
+                        """
                     }
 
                 }        
@@ -254,7 +254,7 @@ pipeline {
                 sh 'echo "Deploy to Pre-Prod"'
                 withCredentials([file(credentialsId: 'kubeconfigfile', variable: 'KUBECONFIG'), usernamePassword(credentialsId: 'admin-user', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
                     
-                        sh '''
+                        sh """
                         export AWS_ACCESS_KEY_ID=$access_key
                         export AWS_SECRET_ACCESS_KEY=$secret_key
                         export AWS_DEFAULT_REGION=eu-west-3
@@ -262,8 +262,8 @@ pipeline {
                         aws s3 ls
                         kubectl get pods
                         kubectl create ns "$ENVIRONMENT" || true
-                        helm upgrade --install test-repo-delete node-js -f node-js/pre-prod.yaml -n "$ENVIRONMENT"
-                        '''
+                        helm upgrade --install test-repo-delete node-js -f node-js/pre-prod.yaml -n "$ENVIRONMENT" --set image=$IMAGE_NAME:${env.CURRENT_VERSION}
+                        """
                     }
 
                 }        
@@ -279,7 +279,7 @@ pipeline {
                 sh 'echo "Deploy to Prod"'
                 withCredentials([file(credentialsId: 'kubeconfigfile', variable: 'KUBECONFIG'), usernamePassword(credentialsId: 'admin-user', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
                     
-                        sh '''
+                        sh """
                         export AWS_ACCESS_KEY_ID=$access_key
                         export AWS_SECRET_ACCESS_KEY=$secret_key
                         export AWS_DEFAULT_REGION=eu-west-3
@@ -287,13 +287,11 @@ pipeline {
                         aws s3 ls
                         kubectl get pods
                         kubectl create ns "$ENVIRONMENT" || true
-                        helm upgrade --install test-repo-delete node-js -f node-js/prod.yaml -n "$ENVIRONMENT"
-                        '''
+                        helm upgrade --install test-repo-delete node-js -f node-js/prod.yaml -n "$ENVIRONMENT" --set image=$IMAGE_NAME:${env.CURRENT_VERSION}
+                        """
                     }
-
-
-                }        
                 }
+            }        
         }                        
       
     }
