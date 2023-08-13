@@ -5,6 +5,8 @@ pipeline {
         // Initialize ENVIRONMENT with a default value, but allow it to be overridden by the parameter
         ENVIRONMENT = "${ENVIRONMENT}"
         NODE_IMAGE = "circleci/node:16.13.1-bullseye-browsers"
+        HELM_IMAGE_VERSION = "alpine/helm:3.8.1"
+        KUBECTL_IMAGE_VERSION = "bitnami/kubectl:1.24.9"
         SERVICE_NAME = "test-repo-delete" 
         ECR_ADDRESS = "064827688814.dkr.ecr.eu-west-3.amazonaws.com"
         IMAGE_NAME = "${ECR_ADDRESS}/${SERVICE_NAME}-${ENVIRONMENT}"
@@ -138,7 +140,13 @@ pipeline {
                             def awsLoginCmd = "aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${ECR_ADDRESS}"
                             def dockerLoginCmd = "AWS_ACCESS_KEY_ID=$access_key AWS_SECRET_ACCESS_KEY=$secret_key $awsLoginCmd"
                             sh "eval $dockerLoginCmd"
-                        }                     
+                        }
+                        withCredentials([file(credentialsId: 'kubeconfigfile', variable: 'KUBECONFIG')]) {
+                            sh"""
+                            docker run --rm  --user root -v "$KUBECONFIG":"$KUBECONFIG" -e KUBECONFIG="$KUBECONFIG" $KUBECTL_IMAGE_VERSION get pods -A
+                            """
+                            // some block
+                        }                                             
 
                 }       
             }
