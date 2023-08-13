@@ -163,7 +163,9 @@ pipeline {
 
                         sh "docker pull $DEV_IMAGE_NAME:${env.CURRENT_VERSION}"
                         sh "docker tag $DEV_IMAGE_NAME:${env.CURRENT_VERSION} $IMAGE_NAME:${env.CURRENT_VERSION}"
+                        sh "docker tag $DEV_IMAGE_NAME:${env.CURRENT_VERSION} $IMAGE_NAME:latest"
                         sh "docker push $IMAGE_NAME:${env.CURRENT_VERSION}"
+                        sh "docker push $IMAGE_NAME:latest"
                     }
 
                     if (ENVIRONMENT == 'pre-prod' ) {
@@ -177,7 +179,9 @@ pipeline {
 
                         sh "docker pull $QA_IMAGE_NAME:${env.CURRENT_VERSION}"
                         sh "docker tag $QA_IMAGE_NAME:${env.CURRENT_VERSION} $IMAGE_NAME:${env.CURRENT_VERSION}"
+                        sh "docker tag $QA_IMAGE_NAME:${env.CURRENT_VERSION} $IMAGE_NAME:latest"
                         sh "docker push $IMAGE_NAME:${env.CURRENT_VERSION}"
+                        sh "docker push $IMAGE_NAME:latest"
                     }
 
                     if (ENVIRONMENT == 'prod' ) {
@@ -191,7 +195,9 @@ pipeline {
 
                         sh "docker pull $PREPROD_IMAGE_NAME:${env.CURRENT_VERSION}"
                         sh "docker tag $PREPROD_IMAGE_NAME:${env.CURRENT_VERSION} $IMAGE_NAME:${env.CURRENT_VERSION}"
+                        sh "docker tag $PREPROD_IMAGE_NAME:${env.CURRENT_VERSION} $IMAGE_NAME:latest"
                         sh "docker push $IMAGE_NAME:${env.CURRENT_VERSION}"
+                        sh "docker push $IMAGE_NAME:latest"
                     }                    
 
                 }
