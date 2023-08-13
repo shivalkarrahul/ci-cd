@@ -93,7 +93,7 @@ pipeline {
                         if (env.PREVIOUS_VERSION == env.CURRENT_VERSION) {
                             echo "Version.txt changed, using version from version.txt as well"
                             echo "previousVersion = $env.PREVIOUS_VERSION currentVersion=$env.CURRENT_VERSION"
-                            sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:$env.CURRENT_VERSION' 
+                            sh "docker tag $SERVICE_NAME:latest $IMAGE_NAME:${env.CURRENT_VERSION}"
                         }
 
                     }
@@ -118,7 +118,7 @@ pipeline {
                         sh 'docker push $IMAGE_NAME:latest'
                         sh 'docker push $IMAGE_NAME:$JOB_BUILD_NUMBER'
                         if (env.PREVIOUS_VERSION == env.CURRENT_VERSION) {
-                            sh 'docker push $IMAGE_NAME:$env.CURRENT_VERSION'
+                            sh "docker push $IMAGE_NAME:${env.CURRENT_VERSION}"
                         }
 
 
@@ -161,9 +161,9 @@ pipeline {
                             
                         }
 
-                        sh 'docker pull $DEV_IMAGE_NAME:$SERVICE_VERSION'
-                        sh 'docker tag $DEV_IMAGE_NAME:$SERVICE_VERSION $IMAGE_NAME:$SERVICE_VERSION'
-                        sh 'docker push $IMAGE_NAME:$SERVICE_VERSION'
+                        sh "docker pull $DEV_IMAGE_NAME:${env.CURRENT_VERSION}"
+                        sh "docker tag $DEV_IMAGE_NAME:${env.CURRENT_VERSION} $IMAGE_NAME:${env.CURRENT_VERSION}"
+                        sh "docker push $IMAGE_NAME:${env.CURRENT_VERSION}"
                     }
 
                     if (ENVIRONMENT == 'pre-prod' ) {
@@ -175,9 +175,9 @@ pipeline {
                             
                         }
 
-                        sh 'docker pull $QA_IMAGE_NAME:$SERVICE_VERSION'
-                        sh 'docker tag $QA_IMAGE_NAME:$SERVICE_VERSION $IMAGE_NAME:$SERVICE_VERSION'
-                        sh 'docker push $IMAGE_NAME:$SERVICE_VERSION'
+                        sh "docker pull $QA_IMAGE_NAME:${env.CURRENT_VERSION}"
+                        sh "docker tag $QA_IMAGE_NAME:${env.CURRENT_VERSION} $IMAGE_NAME:${env.CURRENT_VERSION}"
+                        sh "docker push $IMAGE_NAME:${env.CURRENT_VERSION}"
                     }
 
                     if (ENVIRONMENT == 'prod' ) {
@@ -189,9 +189,9 @@ pipeline {
                             
                         }
 
-                        sh 'docker pull $PREPROD_IMAGE_NAME:$SERVICE_VERSION'
-                        sh 'docker tag $PREPROD_IMAGE_NAME:$SERVICE_VERSION $IMAGE_NAME:$SERVICE_VERSION'
-                        sh 'docker push $IMAGE_NAME:$SERVICE_VERSION'
+                        sh "docker pull $PREPROD_IMAGE_NAME:${env.CURRENT_VERSION}"
+                        sh "docker tag $PREPROD_IMAGE_NAME:${env.CURRENT_VERSION} $IMAGE_NAME:${env.CURRENT_VERSION}"
+                        sh "docker push $IMAGE_NAME:${env.CURRENT_VERSION}"
                     }                    
 
                 }
@@ -205,7 +205,7 @@ pipeline {
             steps{
                 script {
                 sh 'echo "Deploy to QA"'
-                sh 'echo "docker run $IMAGE_NAME:$SERVICE_VERSION"'  
+                sh 'echo "docker run $IMAGE_NAME:${env.CURRENT_VERSION}"'  
                 }        
             }
         }  
@@ -217,7 +217,7 @@ pipeline {
             steps{
                 script {
                 sh 'echo "Deploy to Pre-Prod"'
-                sh 'echo "docker run $IMAGE_NAME:$SERVICE_VERSION"'  
+                sh 'echo "docker run $IMAGE_NAME:${env.CURRENT_VERSION}"'  
                 }        
             }
         }  
@@ -229,7 +229,7 @@ pipeline {
             steps{
                 script {
                 sh 'echo "Deploy to Prod"'
-                sh 'echo "docker run $IMAGE_NAME:$SERVICE_VERSION"'  
+                sh 'echo "docker run $IMAGE_NAME:${env.CURRENT_VERSION}"'  
                 }        
                 }
         }                        
