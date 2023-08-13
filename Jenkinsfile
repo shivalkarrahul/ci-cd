@@ -90,9 +90,9 @@ pipeline {
                         sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:latest'
                         sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:$JOB_BUILD_NUMBER'
 
-                        if (previousVersion != currentVersion) {
+                        if (${previousVersion} != ${currentVersion}) {
                             echo "Version.txt changed, using version from version.txt as well"
-                            echo "previousVersion = $previousVersion currentVersion=$currentVersion"
+                            echo "previousVersion = ${previousVersion} currentVersion=${currentVersion}"
                             sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:$SERVICE_VERSION' 
                         }
 
@@ -117,7 +117,7 @@ pipeline {
                         }
                         sh 'docker push $IMAGE_NAME:latest'
                         sh 'docker push $IMAGE_NAME:$JOB_BUILD_NUMBER'
-                        if (previousVersion != currentVersion) {
+                        if (${previousVersion} != ${currentVersion}) {
                             sh 'docker push $IMAGE_NAME:$SERVICE_VERSION'
                         }
 
