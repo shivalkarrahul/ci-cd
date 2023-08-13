@@ -150,6 +150,7 @@ pipeline {
                                 export KUBECONFIG=$KUBECONFIG
                                 aws s3 ls
                                 kubectl get pods
+                                helm install test-repo-delete node-js -f dev.yaml
                                 '''
                             }
 
