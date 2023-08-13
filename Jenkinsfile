@@ -151,7 +151,7 @@ pipeline {
                                 aws s3 ls
                                 kubectl get pods
                                 kubectl create ns "$ENVIRONMENT" || true
-                                helm upgrade --install test-repo-delete node-js -f node-js/dev.yaml -n "$ENVIRONMENT" --set image=$IMAGE_NAME:latest
+                                helm upgrade --install test-repo-delete node-js -f node-js/dev.yaml -n "$ENVIRONMENT" --set image=$IMAGE_NAME:$JOB_BUILD_NUMBER
                                 """
                             }
 
