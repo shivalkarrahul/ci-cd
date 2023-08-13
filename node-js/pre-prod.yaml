@@ -2,4 +2,5 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-namespace: default
+namespace: pre-prod
+image: 064827688814.dkr.ecr.eu-west-3.amazonaws.com/test-repo-delete-pre-prod:latest

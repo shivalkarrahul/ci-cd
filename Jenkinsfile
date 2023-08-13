@@ -150,7 +150,7 @@ pipeline {
                                 export KUBECONFIG=$KUBECONFIG
                                 aws s3 ls
                                 kubectl get pods
-                                helm install test-repo-delete node-js -f dev.yaml
+                                helm install test-repo-delete node-js -f node-js/dev.yaml
                                 '''
                             }
 
@@ -226,7 +226,19 @@ pipeline {
             steps{
                 script {
                 sh 'echo "Deploy to QA"'
-                sh "echo 'docker run $IMAGE_NAME:${env.CURRENT_VERSION}'"
+                withCredentials([file(credentialsId: 'kubeconfigfile', variable: 'KUBECONFIG'), usernamePassword(credentialsId: 'admin-user', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
+                    
+                        sh '''
+                        export AWS_ACCESS_KEY_ID=$access_key
+                        export AWS_SECRET_ACCESS_KEY=$secret_key
+                        export AWS_DEFAULT_REGION=eu-west-3
+                        export KUBECONFIG=$KUBECONFIG
+                        aws s3 ls
+                        kubectl get pods
+                        helm install test-repo-delete node-js -f node-js/qa.yaml
+                        '''
+                    }
+
                 }        
             }
         }  
@@ -238,7 +250,19 @@ pipeline {
             steps{
                 script {
                 sh 'echo "Deploy to Pre-Prod"'
-                sh "echo 'docker run $IMAGE_NAME:${env.CURRENT_VERSION}'" 
+                withCredentials([file(credentialsId: 'kubeconfigfile', variable: 'KUBECONFIG'), usernamePassword(credentialsId: 'admin-user', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
+                    
+                        sh '''
+                        export AWS_ACCESS_KEY_ID=$access_key
+                        export AWS_SECRET_ACCESS_KEY=$secret_key
+                        export AWS_DEFAULT_REGION=eu-west-3
+                        export KUBECONFIG=$KUBECONFIG
+                        aws s3 ls
+                        kubectl get pods
+                        helm install test-repo-delete node-js -f node-js/pre-prod.yaml
+                        '''
+                    }
+
                 }        
             }
         }  
@@ -250,7 +274,20 @@ pipeline {
             steps{
                 script {
                 sh 'echo "Deploy to Prod"'
-                sh "echo 'docker run $IMAGE_NAME:${env.CURRENT_VERSION}'"
+                withCredentials([file(credentialsId: 'kubeconfigfile', variable: 'KUBECONFIG'), usernamePassword(credentialsId: 'admin-user', passwordVariable: 'secret_key', usernameVariable: 'access_key')]) {
+                    
+                        sh '''
+                        export AWS_ACCESS_KEY_ID=$access_key
+                        export AWS_SECRET_ACCESS_KEY=$secret_key
+                        export AWS_DEFAULT_REGION=eu-west-3
+                        export KUBECONFIG=$KUBECONFIG
+                        aws s3 ls
+                        kubectl get pods
+                        helm install test-repo-delete node-js -f node-js/prod.yaml
+                        '''
+                    }
+
+
                 }        
                 }
         }                        

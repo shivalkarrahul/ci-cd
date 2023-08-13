@@ -3,3 +3,4 @@
 # Declare variables to be passed into your templates.
 
 namespace: qa
+image: 064827688814.dkr.ecr.eu-west-3.amazonaws.com/test-repo-delete-qa:latest
