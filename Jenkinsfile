@@ -235,7 +235,7 @@ pipeline {
                         export KUBECONFIG=$KUBECONFIG
                         aws s3 ls
                         kubectl get pods
-                        helm install test-repo-delete node-js -f node-js/qa.yaml
+                        helm upgrade --install test-repo-delete node-js -f node-js/qa.yaml
                         '''
                     }
 
