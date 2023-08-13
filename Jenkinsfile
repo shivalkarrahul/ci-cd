@@ -92,7 +92,7 @@ pipeline {
                         sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:latest'
                         sh 'docker tag $SERVICE_NAME:latest $IMAGE_NAME:$JOB_BUILD_NUMBER'
 
-                        if (env.PREVIOUS_VERSION == env.CURRENT_VERSION) {
+                        if (env.PREVIOUS_VERSION != env.CURRENT_VERSION) {
                             echo "Version.txt changed, using version from version.txt as well"
                             echo "previousVersion = $env.PREVIOUS_VERSION currentVersion=$env.CURRENT_VERSION"
                             sh "docker tag $SERVICE_NAME:latest $IMAGE_NAME:${env.CURRENT_VERSION}"
@@ -119,7 +119,7 @@ pipeline {
                         }
                         sh 'docker push $IMAGE_NAME:latest'
                         sh 'docker push $IMAGE_NAME:$JOB_BUILD_NUMBER'
-                        if (env.PREVIOUS_VERSION == env.CURRENT_VERSION) {
+                        if (env.PREVIOUS_VERSION != env.CURRENT_VERSION) {
                             sh "docker push $IMAGE_NAME:${env.CURRENT_VERSION}"
                         }
 
@@ -151,7 +151,7 @@ pipeline {
                                 aws s3 ls
                                 kubectl get pods
                                 kubectl create ns "$ENVIRONMENT" || true
-                                helm upgrade --install test-repo-delete node-js -f node-js/dev.yaml -n "$ENVIRONMENT" --set image=$IMAGE_NAME:latest
+                                helm upgrade --install test-repo-delete node-js -f node-js/dev.yaml -n "$ENVIRONMENT" --set image=$IMAGE_NAME:$JOB_BUILD_NUMBER
                                 """
                             }
 
